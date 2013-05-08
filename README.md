@@ -1,0 +1,4 @@
+rcm
+===
+
+requirejs component manager
