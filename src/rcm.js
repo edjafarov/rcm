@@ -37,16 +37,12 @@ var commands = {
 }
 
 function installPkg(pkgName, ver, cb){
-  log.info("START - install " + pkgName);
   if(component.exists(pkgName)) return cb();
   var pk = component.install( pkgName, ver, {remotes: ['https://raw.github.com']});
   report(pk);
   buildDepTree(pk);
   buildPaths(pk);
-  pk.on('end',function(){
-    log.info("END - install " + pkgName);
-    cb();
-  })
+  pk.on('end',cb);
   pk.install();
 }
 
@@ -91,30 +87,30 @@ commands.install();
 function report(pkg, options) {
   options = options || {};
   if (pkg.inFlight) return;
-  log.info('install', pkg.name + '@' + pkg.version);
+  log.info('install ' + pkg.name + '@' + pkg.version);
 
   pkg.on('error', function(err){
     if (err.fatal) {
-      log.info(err.message);
+      log.error(err.message);
       process.exit(1);
     }
   });
 
   pkg.on('dep', function(dep){
-    log.info('dep', dep.name + '@' + dep.version);
+    log.info('dep ' + dep.name + '@' + dep.version);
     report(dep, options);
   });
 
-  pkg.on('exists', function(dep){
-    log.info('exists', dep.name + '@' + dep.version);
+  pkg.on('exists ', function(dep){
+    log.info('exists' + dep.name + '@' + dep.version);
   });
 
   pkg.on('file', function(file){
-    log.info('fetch', pkg.name + ':' + file);
+    log.info('fetch ' + pkg.name + ':' + file);
   });
 
   pkg.on('end', function(){
-    log.info('complete', pkg.name);
+    log.info('complete ' + pkg.name);
   });
 }
 
