@@ -19,6 +19,22 @@ var commands = {
     env.create('base', {arguments:args}).run({}, function(){})
   },
   install: function(args, callback){
+    if(args.lenght > 0){
+      var compname = args[0];
+      var ver = 'master';
+      if(!!~args[0].indexOf("@")){
+        compname = args[0].split("@")[0];
+        ver = args[0].split("@")[1];
+      }
+      installPkg(compname, ver, installed);
+      function installed(){
+        var packageJson = require(process.cwd() + '/package.json');
+        var requireCfg = require(process.cwd() + '/require.cfg.json') || {};
+        if(!packageJson.components) packageJson.components = {};
+        packageJson.components[compname] = ver;
+      }
+    }
+    
     if(!exists('package.json')) return console.log('need package.json file');
     var comps = require(process.cwd() + '/package.json').components;
     if(!comps) return console.log('no components to install');
@@ -26,7 +42,7 @@ var commands = {
     async.eachSeries(_(comps).keys(), function(compname, cb){
       installPkg(compname, comps[compname],cb);
     }, function(err){
-      fs.writeFile(process.cwd() + '/require.cfg.json', JSON.stringify({paths:paths, shim:depTree}), done);
+      fs.writeFile(process.cwd() + '/require.cfg.json', JSON.stringify({paths:paths, shim:depTree}, null, 4), done);
       function done(){
         log.info("require.cfg.json done!");
       }
@@ -35,6 +51,18 @@ var commands = {
     //TODO: with args install componetns and modify to work properly
   }
 }
+
+commander
+  .version('0.0.5')
+  .usage('<command> [options]')
+  .parse(process.argv);
+
+if(commander.args.length == 0) {
+  return commander.outputHelp()
+}
+commands[commander.args[0]](commander.args.slice(1));
+
+
 
 function installPkg(pkgName, ver, cb){
   if(component.exists(pkgName)) return cb();
@@ -75,15 +103,6 @@ function buildPaths(pkg){
   });
 }
 
-commander
-  .version('0.0.5')
-  .usage('<command> [options]')
-  .parse(process.argv);
-
-
-//commands.init("someapp");
-commands.install();
-
 function report(pkg, options) {
   options = options || {};
   if (pkg.inFlight) return;
@@ -114,4 +133,4 @@ function report(pkg, options) {
   });
 }
 
-
+module.exports = commands;
