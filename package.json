@@ -19,7 +19,8 @@
     "yeoman-generator":"latest",
     "component":"latest",
     "underscore":"latest",
-    "filed":"latest"
+    "filed":"latest",
+    "winston":"latest"
   },
   "devDependencies": {
     "mocha": "latest"
