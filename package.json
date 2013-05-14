@@ -1,0 +1,35 @@
+{
+  "name": "rcm",
+  "version": "0.0.1",
+  "description": "requirejs component manager",
+  "keywords": [
+    "components"
+  ],
+  "main": "src/rcm.js",
+  "scripts": {
+  },
+  "bin": {
+    "rcm": "./bin/rcm"
+  },
+  "dependencies": {
+    "commander": "latest",
+    "async": "latest",
+    "node-fs": "latest",
+    "grunt": "latest",
+    "yeoman-generator":"latest",
+    "component":"latest",
+    "underscore":"latest",
+    "filed":"latest"
+  },
+  "devDependencies": {
+    "mocha": "latest"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "licenses": [
+    {
+      "type": "MIT"
+    }
+  ]
+}
