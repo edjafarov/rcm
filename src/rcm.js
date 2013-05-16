@@ -19,23 +19,37 @@ var commands = {
     env.create('base', {arguments:args}).run({}, function(){})
   },
   install: function(args, callback){
-    if(args.lenght > 0){
+    if(!exists('package.json')) return console.log('need package.json file');
+   
+    if(args.length > 0){
       var compname = args[0];
       var ver = 'master';
       if(!!~args[0].indexOf("@")){
         compname = args[0].split("@")[0];
         ver = args[0].split("@")[1];
       }
-      installPkg(compname, ver, installed);
+      return installPkg(compname, ver, installed);
       function installed(){
         var packageJson = require(process.cwd() + '/package.json');
-        var requireCfg = require(process.cwd() + '/require.cfg.json') || {};
         if(!packageJson.components) packageJson.components = {};
         packageJson.components[compname] = ver;
+        fs.writeFile(process.cwd() + '/package.json', JSON.stringify(packageJson, null, 4), packageUpdated);
+     }
+      function packageUpdated(err){
+        if(err){
+          throw Error(err);
+        }
+         var requireCfg = fs.existsSync(process.cwd() + '/require.cfg.json')?require(process.cwd() + '/require.cfg.json') : {paths:{},shim:{}};
+        _(requireCfg.paths).extend(paths);
+        _(requireCfg.shim).extend(depTree);
+        fs.writeFile(process.cwd() + '/require.cfg.json', JSON.stringify(requireCfg, null, 4), requireCfgUpdated);
+      }
+      function requireCfgUpdated(err){
+        if(err) throw Error(err);
+        log.info("package installed!");
       }
     }
     
-    if(!exists('package.json')) return console.log('need package.json file');
     var comps = require(process.cwd() + '/package.json').components;
     if(!comps) return console.log('no components to install');
     
